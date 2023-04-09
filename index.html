@@ -1,0 +1,154 @@
+		
+	<!DOCTYPE html>
+<html>
+<head>
+	<title>Offset Highlighter</title>
+	<style>
+		.left {
+			float: left;
+			width: 50%;
+			height: 300px;
+			overflow-y: scroll;
+			padding: 10px;
+			border: 1px solid black;
+		}
+		.right {
+			float: right;
+			width: 50%;
+			height: 300px;
+			overflow-y: scroll;
+			padding: 10px;
+			border: 1px solid black;
+		}
+		.highlight {
+			background-color: yellow;
+		}
+		.column {
+		  float: left;
+		  width: 50%;
+		}
+
+		/* Clear floats after the columns */
+		.row:after {
+		  content: "";
+		  display: table;
+		  clear: both;
+		}
+		.highlighted {
+			background-color: #00FFFF;
+		}
+		.offset {
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>	
+<div class="row">
+		<div class="column" id="inputdiv" contenteditable="true">
+				.left {
+			float: left;
+			width: 50%;
+			height: 300px;
+			overflow-y: scroll;
+			padding: 10px;
+			border: 1px solid black;
+		}
+		.right {
+			float: right;
+			width: 50%;
+			height: 300px;
+			overflow-y: scroll;
+			padding: 10px;
+			border: 1px solid black;
+		}
+		.highlight {
+			background-color: yellow;
+		}
+		.column {
+		  float: left;
+		  width: 50%;
+		}
+
+		/* Clear floats after the columns */
+		.row:after {
+		  content: "";
+		  display: table;
+		  clear: both;
+		}
+		.highlighted {
+			background-color: #00FFFF;
+		}
+		.offset {
+			cursor: pointer;
+		}</div>
+	<div class="column">
+		<h3>Offsets and Lengths</h3>
+		<div id="offsets"></div>
+	</div>
+</div>
+<div class="row">
+	<div class="column">
+		<h3>Options</h3>
+		<div>
+			<button onclick="updateInputDiv(true)">Edit input</button>
+		</div>
+	</div>
+	<div class="column">
+		<h3>More Options</h3>
+	</div>
+
+</div>
+	<script>
+		let left = document.getElementById('inputdiv');
+		let offsetsDiv = document.querySelector('#offsets');
+		let offsets = [];
+	
+	left.addEventListener('mouseup', () => {
+		let selection = window.getSelection();
+		if (selection.toString().length > 0) {
+			let range = selection.getRangeAt(0);
+			console.log(range);
+			let preSelectionRange = range.cloneRange();
+			preSelectionRange.selectNodeContents(left);
+			preSelectionRange.setEnd(range.startContainer, range.startOffset);
+			let start = preSelectionRange.toString().length;
+			let end = start + range.toString().length;
+			offsets.push({ start, end });
+			displayOffsets();
+			updateInputDiv(false);
+		}
+	});
+
+	function displayOffsets() {
+		offsetsDiv.innerHTML = '';
+		offsets.forEach((offset, index) => {
+			let offsetDiv = document.createElement('div');
+			offsetDiv.classList.add('offset');
+			offsetDiv.dataset.index = index;
+			offsetDiv.dataset.start = offset.start;
+			offsetDiv.dataset.end = offset.end;
+			offsetDiv.innerHTML = `Offset: ${offset.start}, Length: ${offset.end - offset.start}`;
+			offsetsDiv.appendChild(offsetDiv);
+		});
+	}
+
+	offsetsDiv.addEventListener('click', (e) => {
+		let offsetDiv = e.target.closest('.offset');
+		if (offsetDiv) {
+			let start = parseInt(offsetDiv.dataset.start);
+			let end = parseInt(offsetDiv.dataset.end);
+			let index = parseInt(offsetDiv.dataset.index);
+			let range = document.createRange();
+			range.setStart(left.firstChild, start);
+			range.setEnd(left.firstChild, end);
+			let selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+	});
+	function updateInputDiv(setval) {
+		document.getElementById('inputdiv').contentEditable = setval;
+	}
+</script>
+</body>
+</html>
